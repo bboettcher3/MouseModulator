@@ -23,7 +23,7 @@ public class MapperDevice : MonoBehaviour {
         public float Value;
     }
 
-    public string DeviceName = "UnityDevice";
+    public string DeviceName = "UnityMapper";
     public List<MapperSignal> Signals = new List<MapperSignal>();
 
     private IntPtr dev = IntPtr.Zero;
@@ -57,7 +57,7 @@ public class MapperDevice : MonoBehaviour {
     // Start is called before the first frame update
     void Start()
     {
-        dev = mpr.mpr_dev_new("TestUnity");
+        dev = mpr.mpr_dev_new(DeviceName.Equals("") ? "UnityMapper" : DeviceName);
         for (int i = 0; i < Signals.Count; ++i) {
             sigs.Add(mpr.mpr_sig_new(dev, (mpr.Direction)Signals[i].Direction, Signals[i].Name, 1, mpr.Type.FLOAT, Signals[i].Min, Signals[i].Max));
         }
