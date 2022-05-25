@@ -11,6 +11,9 @@ public class MouseSignals : MonoBehaviour
   [HideInInspector]
   public float mouseSpeed;
 
+  private int numIgnoreZeroFrames = 40;
+  private int curZeroFramesIgnored = 0;
+
   // Start is called before the first frame update
   void Start()
   {
@@ -21,17 +24,28 @@ public class MouseSignals : MonoBehaviour
   void Update()
   {
     /* Update mouse values */
-    mouseX = Input.GetAxis("Mouse X");
-    mouseY = Input.GetAxis("Mouse Y");
-    mouseSpeed = Mathf.Sqrt(Mathf.Pow(mouseX, 2) + Mathf.Pow(mouseX, 2));
+    float newMouseX = Input.GetAxis("Mouse X");
+    float newMouseY = Input.GetAxis("Mouse Y");
+    float newMouseSpeed = Mathf.Sqrt(Mathf.Pow(newMouseX, 2) + Mathf.Pow(newMouseY, 2));
+    if (newMouseSpeed == 0)
+    {
+      curZeroFramesIgnored++;
+    } else
+    {
+      curZeroFramesIgnored = 0;
+    }
 
     /* Update libmapper signals */
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseX", mouseX);
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseY", mouseY);
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseSpeed", mouseSpeed);
-
-    //Debug.Log("x: " + mouseX + ", y:" + mouseY + ", speed: " + mouseSpeed);
-
+    if (newMouseSpeed != 0 || (newMouseSpeed == 0 && curZeroFramesIgnored >= numIgnoreZeroFrames))
+    {
+      mouseX = newMouseX;
+      mouseY = newMouseY;
+      mouseSpeed = newMouseSpeed;
+      gameObject.GetComponent<MapperDevice>().setSignalValue("mouseX", mouseX);
+      gameObject.GetComponent<MapperDevice>().setSignalValue("mouseY", mouseY);
+      gameObject.GetComponent<MapperDevice>().setSignalValue("mouseSpeed", mouseSpeed);
+      //Debug.Log("x: " + mouseX + ", y:" + mouseY + ", speed: " + mouseSpeed);
+    }
 
   }
 }
