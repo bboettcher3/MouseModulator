@@ -517,7 +517,7 @@ MonoBehaviour:
     Min: -2
     Max: 2
     Value: 0
-  - Direction: 1
+  - Direction: 2
     Name: mouseAngle
     Min: 0
     Max: 360

@@ -38,8 +38,8 @@ public class ObjectModulation : MonoBehaviour
 
     // Update color emission from mouse directions
     // intensity -> mouseX
-    float mouseX = mouseSignals.mouseX * 3;
-    float mouseY = mouseSignals.mouseY * 3;
+    float mouseX = mouseSignals.mouseXSpeed * 12;
+    float mouseY = mouseSignals.mouseYSpeed * 12;
     float mouseSpeed = mouseSignals.mouseSpeed;
     gameObject.transform.localPosition = 
       Vector3.Lerp(gameObject.transform.localPosition, new Vector3(mouseX, mouseY, 10f), 1 - (smoothingPerc / 100.0f));
