@@ -37,7 +37,6 @@ public class MouseSignals : MonoBehaviour
   // Start is called before the first frame update
   void Start()
   {
-    Cursor.lockState = CursorLockMode.Locked;
     dev = mpr.mpr_dev_new("MouseModulator");
     sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseXSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f));
     sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseYSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f));
@@ -49,6 +48,17 @@ public class MouseSignals : MonoBehaviour
   // Update is called once per frame
   void Update()
   {
+    
+    if (Input.GetKeyDown(KeyCode.Escape))
+    {
+      /* Unlock mouse if ESC pressed */
+      Cursor.lockState = CursorLockMode.None;
+    } else if (Input.GetMouseButtonDown(0) && Cursor.lockState == CursorLockMode.None && Application.isFocused)
+    {
+      /* Re-lock mouse if mouse clicked while unlocked and focused */
+      Cursor.lockState = CursorLockMode.Locked;
+    }
+
     /* Update signal values */
     mpr.mpr_dev_poll(dev);
 
@@ -82,5 +92,11 @@ public class MouseSignals : MonoBehaviour
     mpr.mpr_sig_set_value(sigs[(int)MouseSignal.MOUSE_ANGLE_RAD], mouseAngleRad);
 
     curBufferIdx = (curBufferIdx + 1) % NUM_AVG_FRAMES;
+  }
+
+  void OnApplicationFocus(bool hasFocus)
+  {
+    /* Only lock cursor if application is focused */
+    Cursor.lockState = hasFocus ? CursorLockMode.Locked : CursorLockMode.None;
   }
 }
