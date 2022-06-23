@@ -12,8 +12,7 @@ public class mpr
         public enum Type {
             DOUBLE = 0x64,
             FLOAT = 0x66,
-            INT32 = 0x69,
-            INT64 = 0x68,
+            INT = 0x69,
         }
 
         // Define libmapper function for new device
@@ -24,7 +23,10 @@ public class mpr
         [DllImport ("mapper")]
         private static extern IntPtr mpr_sig_new(IntPtr parent_dev, Direction dir, String name, int length,
                         Type type, int unit, ref float min, ref float max, int num_inst, int h, int events);
-        [DllImport ("mapper")]                
+        [DllImport("mapper")]
+        private static extern IntPtr mpr_sig_new(IntPtr parent_dev, Direction dir, String name, int length,
+                        Type type, int unit, ref int min, ref int max, int num_inst, int h, int events);
+        [DllImport ("mapper")]
         public static extern IntPtr mpr_sig_get_value(IntPtr signal, int instance, int time);
         [DllImport ("mapper")]
         public static extern void mpr_sig_set_value(IntPtr signal, int id, int len, Type type, ref float val);
@@ -34,9 +36,9 @@ public class mpr
         public static extern void mpr_sig_release_inst(IntPtr sig, int id);
         [DllImport ("mapper")]
         public static extern int mpr_sig_get_inst_is_active(IntPtr sig, int id);
-        
-        // Function overloads to allow calling the function without unnecessary parameters 
-        public static IntPtr mpr_dev_new(String name_prefix) {
+
+  // Function overloads to allow calling the function without unnecessary parameters 
+  public static IntPtr mpr_dev_new(String name_prefix) {
             return mpr_dev_new(name_prefix, 0);
         }
         public static int mpr_dev_poll(IntPtr dev) {
@@ -48,7 +50,11 @@ public class mpr
         public static IntPtr mpr_sig_new(IntPtr parent_dev, Direction dir, String name, int length, Type type, float min, float max) {
             return mpr_sig_new(parent_dev, dir, name, length, type, 0, ref min, ref max, 0, 0, 0);
         }
-        public static IntPtr mpr_sig_get_value(IntPtr signal) {
+        public static IntPtr mpr_sig_new(IntPtr parent_dev, Direction dir, String name, int length, Type type, int min, int max)
+        {
+            return mpr_sig_new(parent_dev, dir, name, length, type, 0, ref min, ref max, 0, 0, 0);
+        }
+  public static IntPtr mpr_sig_get_value(IntPtr signal) {
             return mpr_sig_get_value(signal, 0, 0);
         }
         public static IntPtr mpr_sig_get_value(IntPtr signal, int instance) {

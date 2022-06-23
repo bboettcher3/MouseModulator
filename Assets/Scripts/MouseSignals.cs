@@ -57,9 +57,9 @@ public class MouseSignals : MonoBehaviour
     sigs[(int)MouseSignal.MOUSE_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f);
     sigs[(int)MouseSignal.MOUSE_ANGLE_DEG] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseAngleDeg", 1, mpr.Type.FLOAT, 0.0f, 360.0f);
     sigs[(int)MouseSignal.MOUSE_ANGLE_RAD] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseAngleRad", 1, mpr.Type.FLOAT, 0.0f, 6.283f);
-    sigs[(int)MouseSignal.MOUSE_LEFT_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseLeftClick", 1, mpr.Type.INT32, 0, 1);
-    sigs[(int)MouseSignal.MOUSE_RIGHT_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseRightClick", 1, mpr.Type.INT32, 0, 1);
-    sigs[(int)MouseSignal.MOUSE_SCROLL_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollClick", 1, mpr.Type.INT32, 0, 1);
+    sigs[(int)MouseSignal.MOUSE_LEFT_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseLeftClick", 1, mpr.Type.INT, 0, 1);
+    sigs[(int)MouseSignal.MOUSE_RIGHT_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseRightClick", 1, mpr.Type.INT, 0, 1);
+    sigs[(int)MouseSignal.MOUSE_SCROLL_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollClick", 1, mpr.Type.INT, 0, 1);
     sigs[(int)MouseSignal.MOUSE_SCROLL_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollSpeed", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
   }
 
