@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +15,19 @@ public class MouseSignals : MonoBehaviour
   [HideInInspector]
   public float mouseAngleRad;
 
+  enum MouseSignal
+  {
+    MOUSE_X_SPEED = 0,
+    MOUSE_Y_SPEED,
+    MOUSE_SPEED,
+    MOUSE_ANGLE_DEG,
+    MOUSE_ANGLE_RAD
+  };
+
+  /* Libmapper device and signals */
+  private IntPtr dev = IntPtr.Zero;
+  private List<IntPtr> sigs = new List<IntPtr>();
+
   private const int NUM_AVG_FRAMES = 20;
 
   private float[] mouseXSpeedBuffer = new float[NUM_AVG_FRAMES];
@@ -25,11 +38,20 @@ public class MouseSignals : MonoBehaviour
   void Start()
   {
     Cursor.lockState = CursorLockMode.Locked;
+    dev = mpr.mpr_dev_new("MouseModulator");
+    sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseXSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f));
+    sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseYSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f));
+    sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f));
+    sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseAngleDeg", 1, mpr.Type.FLOAT, 0.0f, 360.0f));
+    sigs.Add(mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseAngleRad", 1, mpr.Type.FLOAT, 0.0f, 6.283f));
   }
 
   // Update is called once per frame
   void Update()
   {
+    /* Update signal values */
+    mpr.mpr_dev_poll(dev);
+
     /* Get new mouse values */
     mouseXSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse X") / 4.0f;
     mouseYSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse Y") / 4.0f;
@@ -52,14 +74,12 @@ public class MouseSignals : MonoBehaviour
     {
       mouseAngleRad += 2 * Mathf.PI;
     }
-    Debug.Log(mouseAngleRad);
     mouseAngleDeg = Mathf.Rad2Deg * mouseAngleRad;
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseXSpeed", mouseXSpeed);
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseYSpeed", mouseYSpeed);
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseSpeed", mouseSpeed);
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseAngleDeg", mouseAngleDeg);
-    gameObject.GetComponent<MapperDevice>().setSignalValue("mouseAngleRad", mouseAngleRad);
-    //Debug.Log("x: " + mouseX + ", y:" + mouseY + ", speed: " + mouseSpeed);
+    mpr.mpr_sig_set_value(sigs[(int)MouseSignal.MOUSE_X_SPEED], mouseXSpeed);
+    mpr.mpr_sig_set_value(sigs[(int)MouseSignal.MOUSE_Y_SPEED], mouseYSpeed);
+    mpr.mpr_sig_set_value(sigs[(int)MouseSignal.MOUSE_SPEED], mouseSpeed);
+    mpr.mpr_sig_set_value(sigs[(int)MouseSignal.MOUSE_ANGLE_DEG], mouseAngleDeg);
+    mpr.mpr_sig_set_value(sigs[(int)MouseSignal.MOUSE_ANGLE_RAD], mouseAngleRad);
 
     curBufferIdx = (curBufferIdx + 1) % NUM_AVG_FRAMES;
   }

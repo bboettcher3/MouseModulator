@@ -341,7 +341,6 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   - component: {fileID: 963194230}
-  - component: {fileID: 963194231}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -433,45 +432,6 @@ MonoBehaviour:
   mouseSpeed: 0
   mouseAngleDeg: 0
   mouseAngleRad: 0
---- !u!114 &963194231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00c08d6a47ca7504f909f04e8b0d8a4f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  DeviceName: MouseModulator
-  Signals:
-  - Direction: 2
-    Name: mouseXSpeed
-    Min: -1
-    Max: 1
-    Value: 0
-  - Direction: 2
-    Name: mouseYSpeed
-    Min: -1
-    Max: 1
-    Value: 0
-  - Direction: 2
-    Name: mouseSpeed
-    Min: 0
-    Max: 1
-    Value: 0
-  - Direction: 2
-    Name: mouseAngleDeg
-    Min: 0
-    Max: 360
-    Value: 0
-  - Direction: 2
-    Name: mouseAngleRad
-    Min: 0
-    Max: 6.2832
-    Value: 0
 --- !u!4 &1263873106 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1685244685767337083, guid: b7946187dcbeb374685f5916c35fb228, type: 3}
