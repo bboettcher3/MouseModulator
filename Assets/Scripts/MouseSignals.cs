@@ -51,7 +51,7 @@ public class MouseSignals : MonoBehaviour
   private IntPtr[] sigs = new IntPtr[(int)MouseSignal.NUM_SIGNALS];
 
   private const int NUM_AVG_FRAMES = 20;
-  private const float POSITION_SPEED_SCALAR = 0.08f;
+  private const float POSITION_SPEED_SCALAR = 0.04f;
 
   private float[] mouseXSpeedBuffer = new float[NUM_AVG_FRAMES];
   private float[] mouseYSpeedBuffer = new float[NUM_AVG_FRAMES];
@@ -64,8 +64,8 @@ public class MouseSignals : MonoBehaviour
     dev = mpr.mpr_dev_new("MouseModulator");
     sigs[(int)MouseSignal.MOUSE_X_POSITION] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseXPosition", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
     sigs[(int)MouseSignal.MOUSE_Y_POSITION] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseYPosition", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
-    sigs[(int)MouseSignal.MOUSE_X_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseXSpeed", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
-    sigs[(int)MouseSignal.MOUSE_Y_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseYSpeed", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
+    sigs[(int)MouseSignal.MOUSE_X_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseXSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f);
+    sigs[(int)MouseSignal.MOUSE_Y_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseYSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f);
     sigs[(int)MouseSignal.MOUSE_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f);
     sigs[(int)MouseSignal.MOUSE_ANGLE_DEG] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseAngleDeg", 1, mpr.Type.FLOAT, 0.0f, 360.0f);
     sigs[(int)MouseSignal.MOUSE_ANGLE_RAD] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseAngleRad", 1, mpr.Type.FLOAT, 0.0f, 6.283f);
@@ -73,7 +73,7 @@ public class MouseSignals : MonoBehaviour
     sigs[(int)MouseSignal.MOUSE_RIGHT_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseRightClick", 1, mpr.Type.INT, 0, 1);
     sigs[(int)MouseSignal.MOUSE_SCROLL_CLICK] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollClick", 1, mpr.Type.INT, 0, 1);
     sigs[(int)MouseSignal.MOUSE_SCROLL_POSITION] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollPosition", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
-    sigs[(int)MouseSignal.MOUSE_SCROLL_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollSpeed", 1, mpr.Type.FLOAT, -1.0f, 1.0f);
+    sigs[(int)MouseSignal.MOUSE_SCROLL_SPEED] = mpr.mpr_sig_new(dev, mpr.Direction.OUTGOING, "mouseScrollSpeed", 1, mpr.Type.FLOAT, 0.0f, 1.0f);
   }
 
   // Update is called once per frame
@@ -94,36 +94,44 @@ public class MouseSignals : MonoBehaviour
     mpr.mpr_dev_poll(dev);
 
     /* Get new mouse values */
-    mouseXSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse X") / 4.0f;
-    mouseYSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse Y") / 4.0f;
-    mouseScrollSpeedBuffer[curBufferIdx] = Input.mouseScrollDelta.y;
+    mouseXSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse X") / 2.0f;
+    mouseYSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse Y") / 2.0f;
+    mouseScrollSpeedBuffer[curBufferIdx] = Mathf.Abs(Input.mouseScrollDelta.y);
 
     /* Get moving averages of each signal */
     float mouseXSpeedSum = 0;
     float mouseYSpeedSum = 0;
+    float mouseXSpeedAbsSum = 0;
+    float mouseYSpeedAbsSum = 0;
     float mouseScrollSpeedSum = 0;
     for (int i = 0; i < NUM_AVG_FRAMES; ++i)
     {
       mouseXSpeedSum += mouseXSpeedBuffer[i];
       mouseYSpeedSum += mouseYSpeedBuffer[i];
+      mouseXSpeedAbsSum += Mathf.Abs(mouseXSpeedBuffer[i]);
+      mouseYSpeedAbsSum += Mathf.Abs(mouseYSpeedBuffer[i]);
       mouseScrollSpeedSum += mouseScrollSpeedBuffer[i];
     }
 
-    /* Speed values */
-    mouseXSpeed = mouseXSpeedSum / NUM_AVG_FRAMES;
-    mouseYSpeed = mouseYSpeedSum / NUM_AVG_FRAMES;
+    float signedMouseXSpeed = mouseXSpeedSum / NUM_AVG_FRAMES;
+    float signedMouseYSpeed = mouseYSpeedSum / NUM_AVG_FRAMES;
+
+    /* Speed values (absolute values) */
+    mouseXSpeed = mouseXSpeedAbsSum / NUM_AVG_FRAMES;
+    mouseYSpeed = mouseYSpeedAbsSum / NUM_AVG_FRAMES;
     mouseSpeed = Mathf.Sqrt(Mathf.Pow(mouseXSpeed, 2) + Mathf.Pow(mouseYSpeed, 2));
     mouseScrollSpeed = mouseScrollSpeedSum / NUM_AVG_FRAMES;
 
-    /* Position values */
-    mouseXPosition = Mathf.Clamp(mouseXPosition + (mouseXSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
-    mouseYPosition = Mathf.Clamp(mouseYPosition + (mouseYSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
+    /* Position values (directional) */
+    mouseXPosition = Mathf.Clamp(mouseXPosition + (signedMouseXSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
+    mouseYPosition = Mathf.Clamp(mouseYPosition + (signedMouseYSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
     mouseScrollPosition = Mathf.Clamp(mouseScrollPosition + (mouseScrollSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
 
     /* Angle values */
-    if (mouseSpeed > 0.05f)
+    if (mouseSpeed > 0.01f)
     {
-      mouseAngleRad = Mathf.Atan2(mouseYSpeed, mouseXSpeed);
+      /* Have to use signed values to compute angles */
+      mouseAngleRad = Mathf.Atan2(signedMouseYSpeed, signedMouseXSpeed);
       if (mouseAngleRad < 0.0f)
       {
         mouseAngleRad += 2 * Mathf.PI;

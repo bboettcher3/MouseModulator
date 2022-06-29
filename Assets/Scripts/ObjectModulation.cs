@@ -2,27 +2,8 @@ using UnityEngine;
 
 public class ObjectModulation : MonoBehaviour
 {
-  public int smoothingPerc = 90;
   private MouseSignals mouseSignals;
-
-  string[] animationNames =
-    { "Attack01",
-    "Attack02",
-    "Defend",
-    "DefendGetHit",
-    "Die",
-    "Dizzy",
-    "GetHit",
-    "RunFWD",
-    "SenseSomethingRPT",
-    "SenseSomethingST",
-    "Take 001",
-    "Taunt",
-    "Victory",
-    "WalkBWD",
-    "WalkFWD",
-    "WalkLeft",
-    "WalkRight"};
+  private const float SPEED_SCALE = 2.0f;
 
   // Start is called before the first frame update
   void Start()
@@ -31,15 +12,20 @@ public class ObjectModulation : MonoBehaviour
   }
 
   // Update is called once per frame
-  void FixedUpdate()
+  void Update()
   {
+    /* Mouse speed ring */
+    Transform speedBall = gameObject.transform.Find("SpeedRing");
+    speedBall.localScale = new Vector3(1.0f + mouseSignals.mouseXSpeed * SPEED_SCALE, 1.0f, 1.0f + mouseSignals.mouseYSpeed * SPEED_SCALE);
 
-    // Update color emission from mouse directions
-    // intensity -> mouseX
-    float mouseX = mouseSignals.mouseXSpeed * 12;
-    float mouseY = mouseSignals.mouseYSpeed * 12;
-    float mouseSpeed = mouseSignals.mouseSpeed;
-    gameObject.transform.localPosition = 
-      Vector3.Lerp(gameObject.transform.localPosition, new Vector3(mouseX, mouseY, 10f), 1 - (smoothingPerc / 100.0f));
+    /* Mouse angle sphere */
+    Transform angleSphere = gameObject.transform.Find("AngleSphere");
+    float angleSphereX = speedBall.localScale.x / 2.0f * Mathf.Cos(mouseSignals.mouseAngleRad);
+    float angleSphereY = speedBall.localScale.z / 2.0f * Mathf.Sin(mouseSignals.mouseAngleRad);
+    angleSphere.localPosition = new Vector3(angleSphereX, angleSphereY, 2.0f);
+
+    /* Mouse position sphere */
+    Transform positionSphere = gameObject.transform.Find("PositionSphere");
+    positionSphere.localPosition = new Vector3(mouseSignals.mouseXPosition / 4.0f, mouseSignals.mouseYPosition / 4.0f, 1.9f);
   }
 }
