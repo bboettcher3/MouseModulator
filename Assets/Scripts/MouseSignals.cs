@@ -19,11 +19,11 @@ public class MouseSignals : MonoBehaviour
   [HideInInspector]
   public float mouseAngleRad;
   [HideInInspector]
-  public float mouseLeftClick;
+  public int mouseLeftClick;
   [HideInInspector]
-  public float mouseRightClick;
+  public int mouseRightClick;
   [HideInInspector]
-  public float mouseScrollClick;
+  public int mouseScrollClick;
   [HideInInspector]
   public float mouseScrollPosition;
   [HideInInspector]
@@ -96,7 +96,7 @@ public class MouseSignals : MonoBehaviour
     /* Get new mouse values */
     mouseXSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse X") / 2.0f;
     mouseYSpeedBuffer[curBufferIdx] = Input.GetAxis("Mouse Y") / 2.0f;
-    mouseScrollSpeedBuffer[curBufferIdx] = Mathf.Abs(Input.mouseScrollDelta.y);
+    mouseScrollSpeedBuffer[curBufferIdx] = Input.mouseScrollDelta.y;
 
     /* Get moving averages of each signal */
     float mouseXSpeedSum = 0;
@@ -104,6 +104,7 @@ public class MouseSignals : MonoBehaviour
     float mouseXSpeedAbsSum = 0;
     float mouseYSpeedAbsSum = 0;
     float mouseScrollSpeedSum = 0;
+    float mouseScrollSpeedAbsSum = 0;
     for (int i = 0; i < NUM_AVG_FRAMES; ++i)
     {
       mouseXSpeedSum += mouseXSpeedBuffer[i];
@@ -111,24 +112,26 @@ public class MouseSignals : MonoBehaviour
       mouseXSpeedAbsSum += Mathf.Abs(mouseXSpeedBuffer[i]);
       mouseYSpeedAbsSum += Mathf.Abs(mouseYSpeedBuffer[i]);
       mouseScrollSpeedSum += mouseScrollSpeedBuffer[i];
+      mouseScrollSpeedAbsSum += Mathf.Abs(mouseScrollSpeedBuffer[i]);
     }
 
     float signedMouseXSpeed = mouseXSpeedSum / NUM_AVG_FRAMES;
     float signedMouseYSpeed = mouseYSpeedSum / NUM_AVG_FRAMES;
+    float signedMouseScrollSpeed = mouseScrollSpeedSum / NUM_AVG_FRAMES;
 
     /* Speed values (absolute values) */
     mouseXSpeed = mouseXSpeedAbsSum / NUM_AVG_FRAMES;
     mouseYSpeed = mouseYSpeedAbsSum / NUM_AVG_FRAMES;
     mouseSpeed = Mathf.Sqrt(Mathf.Pow(mouseXSpeed, 2) + Mathf.Pow(mouseYSpeed, 2));
-    mouseScrollSpeed = mouseScrollSpeedSum / NUM_AVG_FRAMES;
+    mouseScrollSpeed = mouseScrollSpeedAbsSum / NUM_AVG_FRAMES;
 
     /* Position values (directional) */
     mouseXPosition = Mathf.Clamp(mouseXPosition + (signedMouseXSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
     mouseYPosition = Mathf.Clamp(mouseYPosition + (signedMouseYSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
-    mouseScrollPosition = Mathf.Clamp(mouseScrollPosition + (mouseScrollSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
+    mouseScrollPosition = Mathf.Clamp(mouseScrollPosition + (signedMouseScrollSpeed * POSITION_SPEED_SCALAR), -1.0f, 1.0f);
 
     /* Angle values */
-    if (mouseSpeed > 0.01f)
+    if (mouseSpeed > 0.02f)
     {
       /* Have to use signed values to compute angles */
       mouseAngleRad = Mathf.Atan2(signedMouseYSpeed, signedMouseXSpeed);
